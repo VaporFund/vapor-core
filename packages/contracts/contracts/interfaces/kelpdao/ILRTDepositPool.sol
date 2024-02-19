@@ -34,8 +34,9 @@ interface ILRTDepositPool {
         uint256 depositAmount,
         uint256 minRSETHAmountExpected,
         string calldata referralId
-    )
-        external;
+    ) external;
+
+    function depositETH(uint256 minRSETHAmountExpected, string calldata referralId) external;
 
     function getTotalAssetDeposits(address asset) external view returns (uint256);
 
