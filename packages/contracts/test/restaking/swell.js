@@ -28,4 +28,6 @@ describe("#swell", () => {
         expect(fromEther(balance)).to.be.closeTo(1, 0.1)
     })
 
+    // not available for withdrawal
+
 })
