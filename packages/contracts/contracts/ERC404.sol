@@ -3,8 +3,7 @@
 pragma solidity ^0.8.0;
 
 /**
- * @notice The base ERC404 contract made by Pandora
- *         https://github.com/Pandora-Labs-Org/erc404-legacy
+ * @notice The base ERC404 contract made by Pandora --> https://github.com/Pandora-Labs-Org/erc404-legacy
  */
 
 abstract contract Ownable {
