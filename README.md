@@ -5,6 +5,7 @@ VaporFund extends staking accessibility across chains by utilizing a specialized
 ## Inspiration
 - ElasticBridge - https://github.com/nulltea/elastic-bridge/blob/main/ElasticBridgePaper.pdf
 - ElasticSwap - https://github.com/ElasticSwap/elasticswap
+- RealUSD - https://docs.tangible.store/real-usd/how-it-works/cross-chain-bridging
 
 
 
