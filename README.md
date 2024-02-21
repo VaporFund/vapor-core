@@ -18,7 +18,7 @@ Some rebase tokens mandate KYC verification. In such cases, a separate system ma
 - [v.1.0] Elastic cross-chain bridge allows for acquiring & withdrawing BNBeETH on BNB chain.
 - [v.1.1] Rebase triggers reward distribution for BNBeETH holders.
 - [v.1.2] Support BNBUSDY/OPUSDY that require KYC approval.
-- [v.1.3] Automate cross-chain messaging/token transfers to 3rd parties like LayerZero or Connext or Chainlink CCIP.
+- [v.1.3] Using 3rd parties to automate cross-chain messaging and token transfers.
 
 The multi-chain DEX specialized for rebase tokens aims to release sometime in 2024.
 
