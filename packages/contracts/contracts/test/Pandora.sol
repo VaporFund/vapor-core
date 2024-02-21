@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "../ERC404.sol";
-
-
+import "./ERC404.sol";
 
 import "hardhat/console.sol";
 

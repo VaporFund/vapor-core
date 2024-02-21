@@ -20,6 +20,8 @@ interface ILiquidityPool {
         DELEGATED_STAKING
     }
 
+    event Rebase(uint256 totalEthLocked, uint256 totalEEthShares);
+
     struct FundStatistics {
         uint32 numberOfValidators;
         uint32 targetWeight;
