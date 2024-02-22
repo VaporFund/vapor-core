@@ -3,11 +3,11 @@
 pragma solidity 0.8.13;
 
 /*
- * @title RTokenVault
+ * @title ChildRToken
  * @dev 
  */
 
-contract RTokenVault {
+contract ChildRToken {
     
     
 
