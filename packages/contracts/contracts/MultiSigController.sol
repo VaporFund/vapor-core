@@ -12,6 +12,8 @@ import "./interfaces/IMultiSigController.sol";
  * @dev a controller facilitating multi-signature operations within the system
  */
 
+
+
 contract MultiSigController is ReentrancyGuard, IMultiSigController {
     using Address for address;
 
@@ -25,7 +27,7 @@ contract MultiSigController is ReentrancyGuard, IMultiSigController {
     Request[] public requests;
 
     address[] private operators;
-    mapping(address => bool) private isOperator;
+    mapping(address => bool) public isOperator;
 
     // Contract list
     mapping(address => bool) private contracts;
@@ -205,23 +207,23 @@ contract MultiSigController is ReentrancyGuard, IMultiSigController {
         return operators;
     }
     
-    // function getRequest(uint _txIndex)
-    //     public
-    //     view
-    //     returns (
-    //         address sender, 
-    //         bool executed,
-    //         uint numConfirmations
-    //     )
-    // {
-    //     Transaction storage transaction = transactions[_txIndex];
+    function getRequest(uint _requestId)
+        public
+        view
+        returns (
+            address contractAddress, 
+            bool executed,
+            uint numConfirmations
+        )
+    {
+        Request storage request = requests[_requestId];
 
-    //     return (
-    //         transaction.sender,
-    //         transaction.executed,
-    //         transaction.numConfirmations
-    //     );
-    // }
+        return (
+            request.contractAddress,
+            request.executed,
+            request.numConfirmations
+        );
+    }
 
     function getRequestCount() public view returns (uint) {
         return requests.length;
