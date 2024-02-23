@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 
 /*
  * @title Forwarder
- * @dev This contract is designed to manage pools and trigger rebase for USDR.
+ * @dev a vault contract wrapper that interfaces with external protocols (ether.fi / hashnote) and keeps updating to support additional ones
  */
 
 contract Forwarder {
