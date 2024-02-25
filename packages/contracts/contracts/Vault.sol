@@ -150,11 +150,15 @@ contract Vault is ReentrancyGuard, IVault {
                 _data
             );
             require(success, "stake failed in vault.sol");
-
-            emit WithdrawAndStake(_token, _amount, address(this).balance, _stakingProtocol, _stakingAddress);
         } else {
-
+            
+            (bool success, ) = _stakingAddress.call(
+                _data
+            );
+            require(success, "stake failed in vault.sol");
         }
+
+        emit WithdrawAndStake(_token, _amount, address(this).balance, _stakingProtocol, _stakingAddress);
     }
 
     /// @notice unstake from the give protocol (alternative option is withdraw and perform unstaking manually)
@@ -168,7 +172,7 @@ contract Vault is ReentrancyGuard, IVault {
         if (_token == Constants.ETH_TOKEN) {
             emit UnstakeAndDeposit(_token, _amount, address(this).balance, _stakingProtocol, _stakingAddress);
         } else {
-
+            emit UnstakeAndDeposit(_token, _amount, IERC20(_token).balanceOf(address(this)) , _stakingProtocol, _stakingAddress);
         }
     
     }

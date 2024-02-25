@@ -8,6 +8,8 @@ describe("#forwarderWithMock", () => {
     let vault
     let forwarder
     let mockDepositPool
+    let usdc
+    let usdy
 
     let alice
     let bob
@@ -48,7 +50,7 @@ describe("#forwarderWithMock", () => {
         await vault.connect(alice).depositWithETH({ value: toEther(10) })
 
         // request stake
-        await forwarder.requestStake(0, toEther(10))
+        await forwarder.requestStake(0, "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" , toEther(10))
 
         // signing
         await controller.connect(alice).confirmRequest(0)
@@ -85,6 +87,56 @@ describe("#forwarderWithMock", () => {
 
         const afterBalance = await ethers.provider.getBalance(vault.target)
         expect( afterBalance-beforeBalance ).to.equal(toEther(10))
+    })
+
+    it("should deposit 1,000 USDC ERC-20 to the vault and then stake for USDY success", async function () {
+
+        // mint 1,000 USDC
+        const usdcAddress = await mockDepositPool.usdcAddress()
+        usdc = await ethers.getContractAt("MockERC20", usdcAddress);
+
+        await usdc.mint(toEther(1000))
+
+        // deposit 1,000 USDC to vault
+        await usdc.approve( vault.target, ethers.MaxUint256 )
+
+        await vault.depositWithERC20(usdcAddress, toEther(1000))
+
+        // request stake
+        await forwarder.requestStake(0, usdcAddress , toEther(1000))
+
+        // signing
+        await controller.connect(alice).confirmRequest(2)
+        await controller.connect(bob).confirmRequest(2)
+
+        await vault.approve(usdcAddress, mockDepositPool.target)
+
+        await controller.connect(charlie).executeRequest(2)
+
+        // vault has 1,000 USDY in return
+        const usdyAddress = await mockDepositPool.usdyAddress()
+        usdy = await ethers.getContractAt("MockERC20", usdyAddress);
+
+        expect( await usdy.balanceOf( vault.target) ).to.equal( toEther(1000))
+
+        await usdy.approve(usdyAddress, mockDepositPool.target)
+    })
+
+    it("should unstake with ERC-20 success", async function () {
+
+        // require unstake 
+        const usdyAddress = await mockDepositPool.usdyAddress()
+        await forwarder.requestUnstake(0, usdyAddress, toEther(1000) )
+
+        // signing
+        await controller.connect(alice).confirmRequest(3)
+        await controller.connect(bob).confirmRequest(3)
+
+        await controller.connect(charlie).executeRequest(3)
+
+        // now vault should have 1,000 USDC
+        expect( await usdc.balanceOf( vault.target) ).to.equal( toEther(1000))
+
     })
 
 })

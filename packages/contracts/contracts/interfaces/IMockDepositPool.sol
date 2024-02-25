@@ -8,6 +8,10 @@ interface IMockDepositPool {
 
     function deposit() external payable returns (uint256);
 
+    function depositUsdc(uint256 amountIn) external;
+
     function withdraw(address recipient, uint256 amount) external returns (uint256);
+
+    function withdrawUsdc(address recipient, uint256 amount) external;
 
 }

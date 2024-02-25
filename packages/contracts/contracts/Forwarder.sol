@@ -63,8 +63,8 @@ contract Forwarder is ReentrancyGuard {
     }
  
     /// @notice 
-    function requestStake(ProtocolsForStaking _protocol, uint256 _amountIn) external onlyOperator  {
-        if (_protocol == ProtocolsForStaking.MOCK) _stakeMock(_amountIn);
+    function requestStake(ProtocolsForStaking _protocol, address _tokenAddress, uint256 _amountIn) external onlyOperator  {
+        if (_protocol == ProtocolsForStaking.MOCK) _stakeMock(_tokenAddress, _amountIn);
         if (_protocol == ProtocolsForStaking.ETHERFI) _stakeEtherfi(_amountIn);
     }
 
@@ -84,26 +84,46 @@ contract Forwarder is ReentrancyGuard {
      *          INTERNAL FUNCTIONS          *
      ****************************************/
 
-    function _stakeMock(uint256 _amountIn) internal {
+    function _stakeMock(address _tokenAddress, uint256 _amountIn) internal {
 
-        uint32 currentRequestId = controller.submitRequest(
+        if (_tokenAddress == Constants.ETH_TOKEN) {
+            uint32 currentRequestId = controller.submitRequest(
             address(vault),
             abi.encodeCall( 
                 IWithdraw.withdrawAndStake, 
-                (Constants.ETH_TOKEN, 
+                (_tokenAddress, 
                 _amountIn, 
                 "MOCK", 
                 registry[ProtocolsForStaking.MOCK], 
                 abi.encodeCall(IMockDepositPool.deposit, ()))
-            )
-        );
+            ));
 
-        emit RequestStake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], Constants.ETH_TOKEN, _amountIn, msg.sender);
+            emit RequestStake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], _tokenAddress, _amountIn, msg.sender);
+        } else {
+            uint32 currentRequestId = controller.submitRequest(
+            address(vault),
+            abi.encodeCall( 
+                IWithdraw.withdrawAndStake, 
+                (_tokenAddress, 
+                _amountIn, 
+                "MOCK", 
+                registry[ProtocolsForStaking.MOCK], 
+                abi.encodeCall(IMockDepositPool.depositUsdc, (_amountIn)))
+            ));
+
+            emit RequestStake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], _tokenAddress, _amountIn, msg.sender);
+        }
+
+        
     }
 
     function _unstakeMock(address _tokenAddress, uint256 _unstakeAmount) internal {
 
-        uint32 currentRequestId = controller.submitRequest(
+        address rTokenAddress = IMockDepositPool(registry[ProtocolsForStaking.MOCK]).rTokenAddress();
+
+        if (_tokenAddress == rTokenAddress) {
+
+            uint32 currentRequestId = controller.submitRequest(
             address(vault),
             abi.encodeCall( 
                 IWithdraw.unstake, 
@@ -112,10 +132,28 @@ contract Forwarder is ReentrancyGuard {
                 "MOCK", 
                 registry[ProtocolsForStaking.MOCK], 
                 abi.encodeCall(IMockDepositPool.withdraw, (address(vault), _unstakeAmount)))
-            )
-        );
+            ));
 
-        emit RequestUnstake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], _tokenAddress, _unstakeAmount, msg.sender);
+            emit RequestUnstake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], _tokenAddress, _unstakeAmount, msg.sender);
+
+        } else {
+
+            uint32 currentRequestId = controller.submitRequest(
+            address(vault),
+            abi.encodeCall( 
+                IWithdraw.unstake, 
+                (_tokenAddress, 
+                _unstakeAmount, 
+                "MOCK", 
+                registry[ProtocolsForStaking.MOCK], 
+                abi.encodeCall(IMockDepositPool.withdrawUsdc, (address(vault), _unstakeAmount)))
+            ));
+
+            emit RequestUnstake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], _tokenAddress, _unstakeAmount, msg.sender);
+
+        }
+
+        
     }
 
     function _stakeEtherfi(uint256 _amountIn) pure internal {
