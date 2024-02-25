@@ -27,7 +27,7 @@ contract CallMe {
     }
 
     function submit() public {
-        currentRequestId = controller.submitRequest(getData());
+        currentRequestId = controller.submitRequest( address(this) , getData());
     }
 
 }

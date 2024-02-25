@@ -8,22 +8,32 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 import "./interfaces/IMultiSigController.sol";
+import "./interfaces/IVault.sol";
 
 import { Constants } from "./utility/Constants.sol";
 
 /*
  * @title Vault
- * @dev a vault contract responsible for locking tokens for any purpose. 
+ * @dev a vault contract responsible for locking tokens for any purpose. also acts as the bridge interface between all supported chains.
  */
 
 interface IWithdraw {
     function withdraw(address _token, uint256 _amount, address _recipient) external;
+
+    function withdrawAndStake(address _token, uint256 _amount, string memory _stakingProtocol, address _stakingAddress, bytes memory _data) external;
+
+    function unstake(address _token, uint256 _amount, string memory _stakingProtocol, address _stakingAddress, bytes memory _data) external;
 }
 
-contract Vault is ReentrancyGuard {
+contract Vault is ReentrancyGuard, IVault {
     using Address for address;
     using SafeERC20 for IERC20;
 
+
+    /// @dev the chain id of the contract, is passed in to avoid any evm issues
+    uint256 public immutable chainId;    
+
+    /// @dev all requests or any related to supply sync between chains require multi-signing from the controller
     IMultiSigController public controller;
 
     event Deposit(
@@ -47,7 +57,24 @@ contract Vault is ReentrancyGuard {
         uint balance
     );
 
-    constructor(address _controller) {
+    event WithdrawAndStake(
+        address indexed tokenAddress,
+        uint amount,
+        uint balance,
+        string stakingProtocol,
+        address stakingAddress
+    );
+
+    event UnstakeAndDeposit(
+        address indexed tokenAddress,
+        uint amount,
+        uint balance,
+        string stakingProtocol,
+        address stakingAddress
+    );
+
+    constructor(uint256 _chainId, address _controller) {
+        chainId = _chainId;
         controller = IMultiSigController(_controller);
     }
 
@@ -98,7 +125,7 @@ contract Vault is ReentrancyGuard {
             );
         }
 
-        uint32 currentRequestId = controller.submitRequest(abi.encodeCall(IWithdraw.withdraw, (_token, _amount, _recipient)));
+        uint32 currentRequestId = controller.submitRequest(address(this) , abi.encodeCall(IWithdraw.withdraw, (_token, _amount, _recipient)));
 
         emit RequestWithdraw(msg.sender, _token, _amount, _recipient, currentRequestId);
     }
@@ -114,6 +141,40 @@ contract Vault is ReentrancyGuard {
             IERC20(_token).safeTransfer(_recipient, _amount);
             emit Withdraw(_token, _amount, IERC20(_token).balanceOf(address(this)));
         }
+    }
+
+    /// @notice withdraw and then stake in the respective protocol
+    function withdrawAndStake(address _token, uint256 _amount, string memory _stakingProtocol, address _stakingAddress, bytes memory _data) external onlyController {
+        if (_token == Constants.ETH_TOKEN) {
+            (bool success, ) = _stakingAddress.call{value: _amount}(
+                _data
+            );
+            require(success, "stake failed in vault.sol");
+
+            emit WithdrawAndStake(_token, _amount, address(this).balance, _stakingProtocol, _stakingAddress);
+        } else {
+
+        }
+    }
+
+    /// @notice unstake from the give protocol (alternative option is withdraw and perform unstaking manually)
+    function unstake(address _token, uint256 _amount, string memory _stakingProtocol, address _stakingAddress, bytes memory _data) external onlyController {
+
+        (bool success, ) = _stakingAddress.call(
+                _data
+        );
+        require(success, "unstake failed in vault.sol");
+
+        if (_token == Constants.ETH_TOKEN) {
+            emit UnstakeAndDeposit(_token, _amount, address(this).balance, _stakingProtocol, _stakingAddress);
+        } else {
+
+        }
+    
+    }
+
+    function approve(address _token, address _stakingAddress) external onlyOperator {
+        IERC20(_token).approve(_stakingAddress, type(uint256).max);
     }
 
     /****************************************

@@ -23,12 +23,16 @@ contract MockRToken is IeETH {
 
     event TransferShares( address indexed from, address indexed to, uint256 sharesValue);
 
-    function name() public pure returns (string memory) { return "ether.fi ETH"; }
-    function symbol() public pure returns (string memory) { return "eETH"; }
+    function name() public pure returns (string memory) { return "rebase ETH"; }
+    function symbol() public pure returns (string memory) { return "rETH"; }
     function decimals() public pure returns (uint8) { return 18; }
     
     function mint() public payable returns (uint256) {
         return _deposit(msg.sender, msg.value, 0);
+    }
+
+    function mintTo(address _recipient) public payable returns (uint256) {
+        return _deposit(_recipient, msg.value, 0);
     }
 
     function burn(address _recipient, uint256 _amount) public returns (uint256) {

@@ -5,14 +5,12 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/IMultiSigController.sol";
-
+ 
 
 /*
  * @title MultiSigController
  * @dev a controller facilitating multi-signature operations within the system
  */
-
-
 
 contract MultiSigController is ReentrancyGuard, IMultiSigController {
     using Address for address;
@@ -131,19 +129,19 @@ contract MultiSigController is ReentrancyGuard, IMultiSigController {
     }
 
     /// @notice submit a request
-    function submitRequest(bytes memory _data) external onlyContract returns (uint32) {
+    function submitRequest(address _contractAddress, bytes memory _data) external onlyContract returns (uint32) {
         uint32 requestId = uint32(requests.length);
 
         requests.push(
             Request({
-                contractAddress: msg.sender,
+                contractAddress: _contractAddress,
                 data: _data,
                 executed: false,
                 numConfirmations: 0
             })
         );
 
-        emit SubmitRequest(requestId, msg.sender);
+        emit SubmitRequest(requestId, _contractAddress);
 
         return requestId;
     }
