@@ -13,5 +13,4 @@ library Constants {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     
-
 }
