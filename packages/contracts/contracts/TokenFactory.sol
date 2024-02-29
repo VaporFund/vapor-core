@@ -29,6 +29,4 @@ contract TokenFactory {
         emit TokenCreated(address(newToken));
     }
 
-    
-
 }

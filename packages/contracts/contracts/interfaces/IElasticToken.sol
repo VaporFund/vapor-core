@@ -18,4 +18,12 @@ interface IElasticToken {
     function increaseAllowance(address _spender, uint256 _increaseAmount) external returns (bool);
     function decreaseAllowance(address _spender, uint256 _decreaseAmount) external returns (bool);
 
+    // called by the vault only
+    function mint(uint256 _amount) external returns (uint256);
+
+    function mintTo(address _recipient, uint256 _amount) external returns (uint256);
+
+    function burn(address _recipient, uint256 _amount) external returns (uint256);
+
+    function rebase(int128 _accruedRewards) external;
 }

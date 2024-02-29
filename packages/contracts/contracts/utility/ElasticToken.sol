@@ -144,7 +144,7 @@ contract ElasticToken is ReentrancyGuard, Ownable {
     }
 
     /// @dev rebase the supply by providing taken rewards
-    function rebase(int128 _accruedRewards) public {
+    function rebase(int128 _accruedRewards) onlyOwner public {
         totalValueOut = uint128(int128(totalValueOut) + _accruedRewards);
     }
 
