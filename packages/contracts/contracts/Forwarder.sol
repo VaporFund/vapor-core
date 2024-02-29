@@ -62,12 +62,13 @@ contract Forwarder is ReentrancyGuard {
         vault = IVault(_vault);
     }
  
-    /// @notice 
+    /// @notice stake asset from vault in respective protocol, output also locked in vault upon completion
     function requestStake(ProtocolsForStaking _protocol, address _tokenAddress, uint256 _amountIn) external onlyOperator  {
         if (_protocol == ProtocolsForStaking.MOCK) _stakeMock(_tokenAddress, _amountIn);
         if (_protocol == ProtocolsForStaking.ETHERFI) _stakeEtherfi(_amountIn);
     }
 
+    /// @notice request unstaking from the protocol. Alternatively, unstaking manually could better fit most workflows
     function requestUnstake(ProtocolsForStaking _protocol, address _tokenAddress, uint256 _unstakeAmount) external onlyOperator  {
         
         require( IERC20(_tokenAddress).balanceOf(address(vault)) >= _unstakeAmount, "insufficient balance on vault.sol" );
@@ -76,6 +77,7 @@ contract Forwarder is ReentrancyGuard {
 
     }
 
+    /// @notice register the protocol's interface contract address
     function register(ProtocolsForStaking _protocol, address _address) external onlyOperator {
         registry[_protocol] = _address;
     }
