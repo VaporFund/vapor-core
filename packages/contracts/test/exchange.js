@@ -74,7 +74,7 @@ describe("#exchange", () => {
         await mockWETH.connect(bob).approve(exchange.target, ethers.MaxUint256)
 
         // buy at 1:1 
-        await exchange.connect(bob).buy(rebaseToken.target, toEther(0.5), mockWETH.target, toEther(0.5))
+        await exchange.connect(bob).deposit(rebaseToken.target, toEther(0.5), mockWETH.target, toEther(0.5))
 
         // checking
         expect(await rebaseToken.balanceOf(bob.address)).to.equal(toEther(0.5))
@@ -94,7 +94,7 @@ describe("#exchange", () => {
         await mockWETH.connect(charlie).approve(exchange.target, ethers.MaxUint256)
 
         // buy at 0.8 eETH/WETH
-        await exchange.connect(charlie).buy(rebaseToken.target, toEther(0.5), mockWETH.target, toEther(0.4))
+        await exchange.connect(charlie).deposit(rebaseToken.target, toEther(0.5), mockWETH.target, toEther(0.4))
 
         // checking
         expect(await rebaseToken.balanceOf(charlie.address)).to.equal(toEther(0.5))

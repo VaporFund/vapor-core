@@ -168,8 +168,8 @@ describe("#eETH", () => {
         await mockWETH.connect(dave).approve(exchange.target, ethers.MaxUint256)
 
         // buy eETH with WETH
-        await exchange.connect(bob).buy(vapor_eeth.target, toEther(0.1), mockWETH.target, toEther(0.1))
-        await exchange.connect(dave).buy(vapor_eeth.target, toEther(0.1), mockWETH.target, toEther(0.1))
+        await exchange.connect(bob).deposit(vapor_eeth.target, toEther(0.1), mockWETH.target, toEther(0.1))
+        await exchange.connect(dave).deposit(vapor_eeth.target, toEther(0.1), mockWETH.target, toEther(0.1))
 
         // checking
         expect(await vapor_eeth.balanceOf(bob.address)).to.equal(toEther(0.1))

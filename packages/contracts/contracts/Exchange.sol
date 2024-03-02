@@ -118,7 +118,7 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
     }
 
     /// @notice buy base tokens with given pair tokens
-    function buy(address _baseToken, uint256 _outputAmount, address _fromAsset, uint256 _maxInputAmount) external nonReentrant {
+    function deposit(address _baseToken, uint256 _outputAmount, address _fromAsset, uint256 _maxInputAmount) external nonReentrant {
         require( orders[_baseToken].active == true ,"invalid token" );
         require( orders[_baseToken].enabled == true ,"order disabled" );
         require( orders[_baseToken].baseAmount >=  _outputAmount && IERC20(_baseToken).balanceOf(address(this)) >=  _outputAmount, "out of supply");
