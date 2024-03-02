@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IMultiSigController.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IMockDepositPool.sol";
+import "./interfaces/etherfi/ILiquidityPool.sol";
 
 import { IWithdraw } from "./Vault.sol";
 import { Constants } from "./utility/Constants.sol";
@@ -154,15 +155,21 @@ contract Forwarder is ReentrancyGuard {
             emit RequestUnstake(currentRequestId, "MOCK", registry[ProtocolsForStaking.MOCK], _tokenAddress, _unstakeAmount, msg.sender);
 
         }
-
-        
     }
 
-    function _stakeEtherfi(uint256 _amountIn) pure internal {
-        console.log("etherfi");
-        console.log(_amountIn);
+    function _stakeEtherfi(uint256 _amountIn) internal {
+        uint32 currentRequestId = controller.submitRequest(
+            address(vault),
+            abi.encodeCall( 
+                IWithdraw.withdrawAndStake, 
+                (Constants.ETH_TOKEN, 
+                _amountIn, 
+                "ETHERFI", 
+                registry[ProtocolsForStaking.ETHERFI], 
+                abi.encodeCall(ILiquidityPool.deposit, ()))
+            ));
 
-        // TODO: complete this
+        emit RequestStake(currentRequestId, "ETHERFI", registry[ProtocolsForStaking.ETHERFI], Constants.ETH_TOKEN, _amountIn, msg.sender);
     }
 
     modifier onlyOperator() {
