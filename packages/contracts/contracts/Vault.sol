@@ -13,6 +13,8 @@ import "./interfaces/IElasticToken.sol";
 
 import { Constants } from "./utility/Constants.sol";
 
+import "hardhat/console.sol";
+
 /*
  * @title Vault
  * @dev a vault contract responsible for locking tokens for any purpose. also acts as the bridge interface between all supported chains.

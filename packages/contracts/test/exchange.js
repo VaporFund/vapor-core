@@ -2,6 +2,13 @@ const { ethers } = require("hardhat")
 const { expect } = require("chai")
 const { toEther, fromEther } = require("./helper")
 
+// The steps for listing tokens on Exchange
+// 1. Team setup mock tokens to serve as base (refers to eETH) and payment (refers to WETH) assets
+// 2. Team setup the exchange rate between eETH <-> WETH
+// 3. Users can now deposit WETH for eETH
+// 4. Users withdraw by making a request and receiving an NFT
+// 5. Once the team approves, users can use NFT and eETH to retrieve WETH
+
 describe("#exchange", () => {
 
     let controller
@@ -36,7 +43,7 @@ describe("#exchange", () => {
         rebaseToken = await MockRToken.deploy()
     })
 
-    it("should admin list tokens for sale success", async function () {
+    it("should team list tokens for sale success", async function () {
 
         // add supported contract
         await controller.connect(operator).addContract(exchange.target)
@@ -136,7 +143,7 @@ describe("#exchange", () => {
         expect(await rebaseToken.balanceOf(vault.target)).to.equal(toEther(1.1))
     })
 
-    it("should admin withdraw liquidity success", async function () {
+    it("should team withdraw liquidity success", async function () {
 
         // withdraw remaining WETH on the exchange back to the vault
         let currentBalance = await mockWETH.balanceOf(exchange.target)
