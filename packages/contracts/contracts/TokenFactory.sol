@@ -18,8 +18,8 @@ contract TokenFactory {
      * @notice Create a new token and return it to the caller.
     */
     function createToken(
-        string calldata tokenName,
-        string calldata tokenSymbol,
+        string memory tokenName,
+        string memory tokenSymbol,
         uint8 tokenDecimals,
         address owner
     ) external returns (IElasticToken newToken) {
