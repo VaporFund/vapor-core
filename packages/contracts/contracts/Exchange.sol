@@ -96,6 +96,10 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
         address indexed sender
     );
 
+    event ApprovedRequestWithdraw(
+        uint256 indexed nftId
+    );
+
     event Withdrawn(
         uint256 indexed nftId,
         address indexed sender
@@ -249,6 +253,8 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
     function approveRequestWithdraw(uint8[] memory tokenIds) external onlyOperator {
         for (uint8 i = 0; i < tokenIds.length; i++) {
             requests[tokenIds[i]].approved = true;
+
+            emit ApprovedRequestWithdraw(tokenIds[i]);
         }
     }
 
@@ -259,23 +265,6 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
     }
 
-    /// @notice submit a liquidity withdrawal request 
-    // function requestLiquidityWithdraw(address _token, uint256 _amount, address _recipient) external onlyOperator {
-    //     require( _amount > 0, "invalid amount");
-
-    //     if (_token == Constants.ETH_TOKEN) {
-    //         require(address(this).balance >= _amount, "insufficent liquidity");
-    //     } else {
-    //         require(
-    //             IERC20(_token).balanceOf(address(this)) >= _amount,
-    //             "insufficent liquidity"
-    //         );
-    //     }
-
-    //     uint32 currentRequestId = controller.submitRequest(address(this) , abi.encodeCall(IWithdrawLiquidity.withdrawLiquidity, (_token, _amount, _recipient)));
-
-    //     emit RequestLiquidityWithdraw(msg.sender, _token, _amount, _recipient, currentRequestId);
-    // }
 
     /// @notice withdraw liquidity to the vault
     function withdrawLiquidity(address _token, uint256 _amount) external onlyOperator {
