@@ -65,6 +65,10 @@ contract ElasticToken is ReentrancyGuard, Ownable {
 
     event TransferShares( address indexed from, address indexed to, uint256 sharesValue);
 
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -181,17 +185,24 @@ contract ElasticToken is ReentrancyGuard, Ownable {
     function _mintShares(address _user, uint256 _share) internal {
         shares[_user] += _share;
         totalShares += _share;
+
+        emit Transfer(address(0), _user, _amountForShare(_share));
+        emit TransferShares(address(0), _user, _share);
     }
 
     function _burnShares(address _user, uint256 _share) internal {
         require(shares[_user] >= _share, "BURN_AMOUNT_EXCEEDS_BALANCE");
         shares[_user] -= _share;
         totalShares -= _share;
+
+        emit Transfer(_user, address(0), _amountForShare(_share));
+        emit TransferShares(_user, address(0), _share);
     }
 
     function _transfer(address _sender, address _recipient, uint256 _amount) internal {
         uint256 _sharesToTransfer = _sharesForAmount(_amount);
         _transferShares(_sender, _recipient, _sharesToTransfer); 
+        emit Transfer(_sender, _recipient, _amount);
     }
 
     function _sharesForMintAmount(uint256 _mintAmount) internal view returns (uint256) {
@@ -221,6 +232,13 @@ contract ElasticToken is ReentrancyGuard, Ownable {
         return (_amount * totalShares) / totalPooledValue;
     }
 
+    function _amountForShare(uint256 _share) internal view returns (uint256) {
+        if (totalShares == 0) {
+            return 0;
+        }
+        return (_share * getTotalPooledValue()) / totalShares;
+    }
+
     function _transferShares(address _sender, address _recipient, uint256 _sharesAmount) internal {
         require(_sender != address(0), "TRANSFER_FROM_THE_ZERO_ADDRESS");
         require(_recipient != address(0), "TRANSFER_TO_THE_ZERO_ADDRESS");
@@ -235,6 +253,8 @@ contract ElasticToken is ReentrancyGuard, Ownable {
         require(_spender != address(0), "APPROVE_TO_ZERO_ADDRESS");
 
         allowances[_owner][_spender] = _amount; 
+
+        emit Approval(_owner, _spender, _amount);
     }
 
     
