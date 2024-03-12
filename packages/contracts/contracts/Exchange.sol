@@ -166,6 +166,9 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
         requests[tokenId].approved = false;
         requests[tokenId].completed = false;
 
+        // transfering tokens to the NFT contract
+        IERC20(_fromToken).safeTransferFrom(msg.sender, address(withdrawNft), _fromAmount);
+
         emit RequestWithdraw(tokenId, _fromToken, _fromAmount, _toToken, _toAmount, msg.sender);
     }
 
@@ -173,7 +176,7 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
     function withdraw(uint256 _requestId) external nonReentrant {
         require( requests[_requestId].approved , "request is not approved" );
         require( !requests[_requestId].completed , "already withdrawn" );
-        require( IERC20(requests[_requestId].fromToken).balanceOf( msg.sender ) >= requests[_requestId].fromAmount, "insufficient balance");
+        require( IERC20(requests[_requestId].fromToken).balanceOf( address(withdrawNft) ) >= requests[_requestId].fromAmount, "insufficient balance");
         require( IERC20(requests[_requestId].toToken).balanceOf( address(this)) >= requests[_requestId].toAmount, "insufficient liquidity");
 
         // taking NFT 
@@ -183,8 +186,8 @@ contract Exchange is ReentrancyGuard, IERC721Receiver, ERC721Holder {
             _requestId
         );
 
-        // transfering tokens to the vault
-        IERC20(requests[_requestId].fromToken).safeTransferFrom(msg.sender, address(vault), requests[_requestId].fromAmount);
+        // sending tokens from the NFT contract to the vault for further burning
+        withdrawNft.withdrawTo(requests[_requestId].fromToken, requests[_requestId].fromAmount, address(vault));
         
         // sending back payment
         IERC20(requests[_requestId].toToken).transfer(msg.sender, requests[_requestId].toAmount);

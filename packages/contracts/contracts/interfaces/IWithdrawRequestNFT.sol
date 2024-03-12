@@ -10,4 +10,6 @@ interface IWithdrawRequestNFT {
 
     function getTokenAddress(uint256 _id) external view returns (address);
 
+    function withdrawTo(address _token, uint256 _amount, address _recipient) external;
+
 }

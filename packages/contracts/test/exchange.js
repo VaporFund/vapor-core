@@ -108,6 +108,10 @@ describe("#exchange", () => {
         expect(await rebaseToken.balanceOf(bob.address)).to.equal(toEther(0.55))
         expect(await rebaseToken.balanceOf(charlie.address)).to.equal(toEther(0.55))
 
+        // preparing deposit tokens into the NFT contract
+        await rebaseToken.connect(bob).approve(exchange.target, ethers.MaxUint256)
+        await rebaseToken.connect(charlie).approve(exchange.target, ethers.MaxUint256)
+
         // request withdrawal for both bob and charlie
         await exchange.connect(bob).requestWithdraw(rebaseToken.target, toEther(0.55), mockWETH.target, toEther(0.55))
         await exchange.connect(charlie).requestWithdraw(rebaseToken.target, toEther(0.55), mockWETH.target, toEther(0.55))
@@ -128,9 +132,6 @@ describe("#exchange", () => {
         await mockWETH.mintTo(exchange.target, toEther(2))
 
         // withdrawing
-        await rebaseToken.connect(bob).approve(exchange.target, ethers.MaxUint256)
-        await rebaseToken.connect(charlie).approve(exchange.target, ethers.MaxUint256)
-
         await nft.connect(bob).approve(exchange.target, 1)
         await nft.connect(charlie).approve(exchange.target, 2)
 
