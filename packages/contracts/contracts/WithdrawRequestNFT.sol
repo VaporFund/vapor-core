@@ -5,6 +5,7 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "hardhat/console.sol";
 
@@ -42,6 +43,11 @@ contract WithdrawRequestNFT is ERC721URIStorage {
         return newItemId;
     }
 
+    /// @dev transfering locked tokens to the given address
+    function withdrawTo(address _token, uint256 _amount, address _recipient) external onlyExchange {
+        IERC20(_token).transfer(_recipient, _amount);
+    }
+
     function tokenURI(uint256 id) public view override returns (string memory) {
 
             string memory jsonPreImage = string.concat(
@@ -75,6 +81,8 @@ contract WithdrawRequestNFT is ERC721URIStorage {
     function getTokenAddress(uint256 id) public view returns (address) {
         return tokenAddresses[id];
     }
+
+
 
     /****************************************
      *          INTERNAL FUNCTIONS          *
